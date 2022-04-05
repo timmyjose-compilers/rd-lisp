@@ -15,7 +15,9 @@ public class Main {
       while (true) {
         System.out.print(PROMPT);
         reader = new Reader(new Lexer(in.readLine().trim()));
-        System.out.println(reader.read());
+        for (var expr : reader.read()) {
+          System.out.println(Evaluator.eval(expr));
+        }
       }
 
     } catch (Throwable err) {
@@ -24,9 +26,71 @@ public class Main {
   }
 }
 
-abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof {}
+class Evaluator {
+  public static LispObject eval(LispObject obj) {
+    return switch (obj) {
+      case Integer num -> num;
+
+      case Symbol sym -> {
+        if (!Environment.hasSymbol(sym.sym)) {
+          throw new RuntimeException(String.format("%s is not bound", sym));
+        }
+
+        yield Environment.retrieveSymbol(sym.sym);
+      }
+
+      case Cons cons -> {
+        if (cons.car instanceof Symbol op) {
+          yield switch (op.sym) {
+            case "QUOTE" -> {
+              if (cons.cdr.isNil() || !Util.cdr(cons.cdr).isNil()) {
+                throw new RuntimeException("invalid number of args to quote");
+              }
+
+              yield Util.car(cons.cdr);
+            }
+
+            case "DEF" -> {
+              if (cons.cdr.isNil()
+                  || Util.cdr(cons.cdr).isNil()
+                  || !Util.cdr(Util.cdr(cons.cdr)).isNil()) {
+                throw new RuntimeException("invalid number of arguments for def");
+              }
+              var symName = Util.car(cons.cdr);
+              var symVal = Evaluator.eval(Util.car(Util.cdr(cons.cdr)));
+
+              Environment.addSymbol(((Symbol) symName).sym, symVal);
+              yield symName;
+            }
+
+            default -> Util.nil;
+          };
+        } else {
+          throw new RuntimeException(String.format("%s is not an operator", cons));
+        }
+      }
+
+      default -> throw new RuntimeException(String.format("eval for %s is not supported", obj));
+    };
+  }
+}
+
+abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof {
+  protected boolean isNil() {
+    return false;
+  }
+
+  protected boolean isCons() {
+    return false;
+  }
+}
 
 final class Nil extends LispObject {
+  @Override
+  public boolean isNil() {
+    return true;
+  }
+
   @Override
   public String toString() {
     return "NIL";
@@ -69,6 +133,11 @@ final class Cons extends LispObject {
   }
 
   @Override
+  public boolean isCons() {
+    return true;
+  }
+
+  @Override
   public String toString() {
     var sb = new StringBuffer("(");
     sb.append(car.toString());
@@ -100,8 +169,8 @@ final class Eof extends LispObject {
 class Environment {
   private static final Map<String, LispObject> symbolTable = new HashMap<>();
 
-  public static void addSymbol(String symStr, Symbol sym) {
-    symbolTable.put(symStr, sym);
+  public static void addSymbol(String symStr, LispObject obj) {
+    symbolTable.put(symStr, obj);
   }
 
   public static boolean hasSymbol(String symStr) {
@@ -152,6 +221,20 @@ class Util {
     return obj;
   }
 
+  public static LispObject car(LispObject obj) {
+    if (obj instanceof Cons cons) {
+      return cons.car;
+    }
+    return Util.nil;
+  }
+
+  public static LispObject cdr(LispObject obj) {
+    if (obj instanceof Cons cons) {
+      return cons.cdr;
+    }
+    return Util.nil;
+  }
+
   public static final LispObject nil = new Nil();
   public static final LispObject constEof = new Eof();
 }
@@ -166,15 +249,6 @@ class Reader {
   }
 
   private void advance() {
-    currTok = lexer.nextToken();
-  }
-
-  private void advanceIf(TokenType expectedKind) {
-    if (currTok.kind() != expectedKind) {
-      throw new RuntimeException(
-          String.format("expected to see %s, but found %s\n", expectedKind, currTok.kind()));
-    }
-
     currTok = lexer.nextToken();
   }
 
@@ -207,7 +281,7 @@ class Reader {
       case Quote -> {
         advance();
         var form = readForm();
-        yield form;
+        yield Util.makeCons(Util.makeSymbol("quote"), Util.makeCons(form, Util.nil));
       }
 
       case Symbol -> {
@@ -231,7 +305,6 @@ class Reader {
     List<LispObject> forms = new ArrayList<>();
     while (true) {
       var form = readForm();
-      System.out.println("Read form: " + form);
       if (form instanceof Eof) {
         break;
       }
