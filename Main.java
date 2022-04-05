@@ -22,52 +22,6 @@ public class Main {
       err.printStackTrace();
     }
   }
-
-  public static void amain(String[] args) {
-    var obj = Util.makeNil();
-    System.out.println(obj);
-
-    obj = Util.makeInteger("100");
-    System.out.println(obj);
-
-    obj = Util.makeSymbol("foo");
-    System.out.println(obj);
-
-    obj = Util.makeCons(Util.makeSymbol("quote"), Util.makeSymbol("foo"));
-    System.out.println(obj);
-
-    obj = Util.makeCons(Util.makeSymbol("quote"), Util.makeCons(Util.makeSymbol("foo"), Util.nil));
-    System.out.println(obj);
-
-    obj =
-        Util.makeCons(
-            Util.makeInteger("1"),
-            Util.makeCons(
-                Util.makeInteger("2"),
-                Util.makeCons(
-                    Util.makeInteger("3"),
-                    Util.makeCons(
-                        Util.makeInteger("4"), Util.makeCons(Util.makeInteger("5"), Util.nil)))));
-    System.out.println(obj);
-
-    obj =
-        Util.makeCons(
-            Util.makeInteger("1"),
-            Util.makeCons(
-                Util.makeInteger("2"),
-                Util.makeCons(
-                    Util.makeInteger("3"),
-                    Util.makeCons(
-                        Util.makeInteger("4"),
-                        Util.makeCons(Util.makeInteger("5"), Util.makeInteger("6"))))));
-    System.out.println(obj);
-
-    obj =
-        Util.makeCons(
-            Util.makeSymbol("+"),
-            Util.makeCons(Util.makeInteger("1"), Util.makeCons(Util.makeInteger("2"), Util.nil)));
-    System.out.println(obj);
-  }
 }
 
 abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof {}
