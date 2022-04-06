@@ -12,10 +12,18 @@ public class Environment {
     Environment.addSymbol("cons");
     Environment.addSymbol("car");
     Environment.addSymbol("cdr");
+    Environment.addSymbol("+");
+    Environment.addSymbol("-");
+    Environment.addSymbol("*");
+    Environment.addSymbol("/");
 
     Environment.bindSymbol(Environment.retrieveSymbol("cons"), new ConsFunction());
     Environment.bindSymbol(Environment.retrieveSymbol("car"), new CarFunction());
     Environment.bindSymbol(Environment.retrieveSymbol("cdr"), new CdrFunction());
+    Environment.bindSymbol(Environment.retrieveSymbol("+"), new AddFunction());
+    Environment.bindSymbol(Environment.retrieveSymbol("-"), new SubFunction());
+    Environment.bindSymbol(Environment.retrieveSymbol("*"), new MulFunction());
+    Environment.bindSymbol(Environment.retrieveSymbol("/"), new DivFunction());
   }
 
   public static void addSymbol(String symStr) {

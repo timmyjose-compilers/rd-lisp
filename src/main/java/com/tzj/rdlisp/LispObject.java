@@ -13,7 +13,13 @@ abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof, Builti
 /// Built-in functions
 
 abstract sealed class BuiltinFunction extends LispObject
-    permits ConsFunction, CarFunction, CdrFunction {
+    permits ConsFunction,
+        CarFunction,
+        CdrFunction,
+        AddFunction,
+        SubFunction,
+        MulFunction,
+        DivFunction {
   public abstract LispObject apply(LispObject args);
 }
 
@@ -82,6 +88,94 @@ final class Nil extends LispObject {
   @Override
   public String toString() {
     return "NIL";
+  }
+}
+
+final class AddFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var n = Util.car(args);
+    if (n instanceof Integer nn) {
+      var m = Util.car(Util.cdr(args));
+      if (m instanceof Integer mm) {
+        return new Integer(nn.integer + mm.integer);
+      } else {
+        throw new Error("second argument to `+` is not a number");
+      }
+    } else {
+      throw new Error("first argument to `+` is not a number");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:<+>";
+  }
+}
+
+final class SubFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var n = Util.car(args);
+    if (n instanceof Integer nn) {
+      var m = Util.car(Util.cdr(args));
+      if (m instanceof Integer mm) {
+        return new Integer(nn.integer - mm.integer);
+      } else {
+        throw new Error("second argument to `-` is not a number");
+      }
+    } else {
+      throw new Error("first argument to `-` is not a number");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:<->";
+  }
+}
+
+final class MulFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var n = Util.car(args);
+    if (n instanceof Integer nn) {
+      var m = Util.car(Util.cdr(args));
+      if (m instanceof Integer mm) {
+        return new Integer(nn.integer * mm.integer);
+      } else {
+        throw new Error("second argument to `*` is not a number");
+      }
+    } else {
+      throw new Error("first argument to `*` is not a number");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:<*>";
+  }
+}
+
+final class DivFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var n = Util.car(args);
+    if (n instanceof Integer nn) {
+      var m = Util.car(Util.cdr(args));
+      if (m instanceof Integer mm) {
+        return new Integer(nn.integer / mm.integer);
+      } else {
+        throw new Error("second argument to `/` is not a number");
+      }
+    } else {
+      throw new Error("first argument to `/` is not a number");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:</>";
   }
 }
 
