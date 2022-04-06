@@ -46,7 +46,7 @@ public class Lexer {
     currPos++;
 
     if (currPos >= src.length()) {
-      throw new RuntimeException("skipped past the end of the input");
+      throw new Error("skipped past the end of the input");
     }
   }
 
@@ -146,8 +146,36 @@ public class Lexer {
           'w',
           'x',
           'y',
-          'z' -> {
-        while (Character.isLetterOrDigit(currChar())) {
+          'z',
+          'A',
+          'B',
+          'C',
+          'D',
+          'E',
+          'F',
+          'G',
+          'I',
+          'J',
+          'K',
+          'L',
+          'M',
+          'N',
+          'O',
+          'P',
+          'Q',
+          'R',
+          'S',
+          'T',
+          'U',
+          'V',
+          'W',
+          'Y',
+          'Z' -> {
+        while (Character.isLetterOrDigit(currChar())
+            || currChar() == '-'
+            || currChar() == '>'
+            || currChar() == '$') {
+
           eatIt();
         }
 
@@ -156,7 +184,7 @@ public class Lexer {
 
       case '\u0000' -> TokenType.Eof;
 
-      default -> throw new RuntimeException(
+      default -> throw new Error(
           String.format("invalid character %c (code: %d)\n", currChar(), (int) currChar()));
     };
   }
@@ -179,7 +207,7 @@ public class Lexer {
 
   public Token nextToken() {
     if (currIdx >= tokens.size()) {
-      throw new RuntimeException("[Lexer] idx out of range");
+      throw new Error("[Lexer] idx out of range");
     }
 
     return tokens.get(currIdx++);

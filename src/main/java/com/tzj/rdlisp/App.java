@@ -11,13 +11,16 @@ public class App {
       Reader reader;
 
       while (true) {
-        System.out.print(PROMPT);
-        reader = new Reader(new Lexer(in.readLine().trim()));
-        for (var expr : reader.read()) {
-          System.out.println(Evaluator.eval(expr));
+        try {
+          System.out.print(PROMPT);
+          reader = new Reader(new Lexer(in.readLine().trim()));
+          for (var expr : reader.read()) {
+            System.out.println(Evaluator.eval(expr));
+          }
+        } catch (Error err) {
+          System.out.println(err);
         }
       }
-
     } catch (Throwable err) {
       err.printStackTrace();
     }

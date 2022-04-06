@@ -23,7 +23,7 @@ public class Reader {
         advance();
         var cdr = readForm();
         if (currTok.kind() != TokenType.RightParen) {
-          throw new RuntimeException("illegal dotted pair - more forms after cdr element");
+          throw new Error("illegal dotted pair - more forms after cdr element");
         }
         advance();
         return Util.reverse(Util.makeCons(cdr, form));
@@ -32,13 +32,11 @@ public class Reader {
     }
 
     if (currTok.kind() == TokenType.Eof) {
-      throw new RuntimeException("unmatched right parenthesis");
+      throw new Error("unmatched right parenthesis");
     }
     advance();
 
-    form = Util.reverse(form);
-
-    return form;
+    return Util.reverse(form);
   }
 
   private LispObject readForm() {
@@ -68,9 +66,9 @@ public class Reader {
         yield readList();
       }
 
-      case RightParen -> throw new RuntimeException("unmatched parenthesis");
+      case RightParen -> throw new Error("unmatched parenthesis");
 
-      default -> throw new RuntimeException(String.format("invalid token: %s", currTok));
+      default -> throw new Error(String.format("invalid token: %s", currTok));
     };
   }
 

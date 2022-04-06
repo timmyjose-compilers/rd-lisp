@@ -9,13 +9,15 @@ public class Util {
     }
   }
 
-  public static LispObject makeSymbol(String sym) {
-    if (Environment.hasSymbol(sym)) {
-      return Environment.retrieveSymbol(sym);
-    }
+  public static Symbol makeSymbol(String symStr) {
+    var sym = Environment.retrieveSymbol(symStr);
 
-    Environment.addSymbol(sym, new Symbol(sym.toUpperCase()));
-    return Environment.retrieveSymbol(sym);
+    if (sym == null) {
+      Environment.addSymbol(symStr);
+      return Environment.retrieveSymbol(symStr);
+    } else {
+      return sym;
+    }
   }
 
   public static LispObject makeNil() {
@@ -51,6 +53,19 @@ public class Util {
       return cons.cdr;
     }
     return Util.nil;
+  }
+
+  public static LispObject copyList(LispObject obj) {
+    LispObject copy = Util.nil;
+
+    while (obj != Util.nil) {
+      if (obj instanceof Cons cons) {
+        copy = Util.makeCons(cons.car, copy);
+        obj = cons.cdr;
+      }
+    }
+
+    return Util.reverse(copy);
   }
 
   public static final LispObject nil = new Nil();
