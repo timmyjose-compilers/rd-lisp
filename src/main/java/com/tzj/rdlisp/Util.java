@@ -10,11 +10,11 @@ public class Util {
   }
 
   public static Symbol makeSymbol(String symStr) {
-    var sym = Environment.retrieveSymbol(symStr);
+    var sym = Environment.getInitEnv().retrieveSymbol(symStr);
 
     if (sym == null) {
-      Environment.addSymbol(symStr);
-      return Environment.retrieveSymbol(symStr);
+      Environment.getInitEnv().addSymbol(symStr);
+      return Environment.getInitEnv().retrieveSymbol(symStr);
     } else {
       return sym;
     }
@@ -60,12 +60,12 @@ public class Util {
 
     while (obj != Util.nil) {
       if (obj instanceof Cons cons) {
-        copy = Util.makeCons(cons.car, copy);
+        copy = makeCons(cons.car, copy);
         obj = cons.cdr;
       }
     }
 
-    return Util.reverse(copy);
+    return reverse(copy);
   }
 
   public static final LispObject nil = new Nil();

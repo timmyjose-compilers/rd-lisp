@@ -15,7 +15,7 @@ public class App {
           System.out.print(PROMPT);
           reader = new Reader(new Lexer(in.readLine().trim()));
           for (var expr : reader.read()) {
-            System.out.println(Evaluator.eval(expr));
+            System.out.println(Evaluator.eval(Environment.getInitEnv(), expr));
           }
         } catch (Error err) {
           System.out.println(err);

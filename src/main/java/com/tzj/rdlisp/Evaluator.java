@@ -1,13 +1,15 @@
 package com.tzj.rdlisp;
 
 public class Evaluator {
-  public static LispObject eval(LispObject obj) {
+  public static LispObject eval(final Environment env, LispObject obj) {
     return switch (obj) {
       case Integer num -> num;
 
       case Symbol sym -> {
-        var symBinding = Environment.retrieveBinding(sym);
+        var symBinding = env.retrieveBinding(sym);
         if (symBinding == null) {
+          System.out.println("here for " + sym);
+          System.out.println(env);
           throw new Error(String.format("%s is not bound", sym));
         }
 
@@ -32,31 +34,45 @@ public class Evaluator {
                 throw new Error("invalid number of arguments for def");
               }
               var symName = Util.car(cons.cdr);
-              var symVal = Evaluator.eval(Util.car(Util.cdr(cons.cdr)));
+              var symVal = Evaluator.eval(env, Util.car(Util.cdr(cons.cdr)));
 
-              Environment.bindSymbol((Symbol) symName, symVal);
+              env.bindSymbol((Symbol) symName, symVal);
               yield symName;
             }
 
+            case "LAMBDA" -> {
+              var closureEnv = Environment.getInitEnv().clone(Environment.getInitEnv());
+              var args = Util.car(cons.cdr);
+              var body = Util.car(Util.cdr(cons.cdr));
+
+              yield new LambdaExpression(closureEnv, args, body);
+            }
+
             default -> {
-              var binding = Environment.retrieveBinding(op);
-              if (binding instanceof BuiltinFunction fn) {
+              var binding = env.retrieveBinding(op);
+              if (binding instanceof Function fn) {
                 var args = Util.copyList(cons.cdr);
 
-                var argsPtr = args;
-                while (argsPtr != Util.nil) {
-                  if (argsPtr instanceof Cons pair) {
-                    pair.car = Evaluator.eval(pair.car);
-                    argsPtr = pair.cdr;
+                var argPtr = args;
+                while (argPtr != Util.nil) {
+                  if (argPtr instanceof Cons pair) {
+                    pair.car = Evaluator.eval(env, pair.car);
+                    argPtr = pair.cdr;
                   }
                 }
 
                 yield fn.apply(args);
               } else {
-                throw new Error(String.format("%s is not a builtin function", op));
+                throw new Error(String.format("%s is not a function", op));
               }
             }
           };
+        } else if (cons.car instanceof Cons maybeLambda) {
+          if (Evaluator.eval(env, maybeLambda) instanceof LambdaExpression lambda) {
+            yield lambda.apply(cons.cdr);
+          } else {
+            throw new Error(String.format("%s is not a lambda", cons.car));
+          }
         } else {
           throw new Error(String.format("%s is not an operator", cons.car));
         }

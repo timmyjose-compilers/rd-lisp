@@ -1,6 +1,8 @@
 package com.tzj.rdlisp;
 
-abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof, BuiltinFunction {
+import java.util.Objects;
+
+abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof, Function {
   protected boolean isNil() {
     return false;
   }
@@ -10,18 +12,75 @@ abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof, Builti
   }
 }
 
+abstract sealed class Function extends LispObject permits LambdaExpression, BuiltinFunction {
+  public abstract LispObject apply(LispObject args);
+}
+
+final class LambdaExpression extends Function {
+  public Environment env;
+  public LispObject params;
+  public LispObject body;
+
+  public LambdaExpression(final Environment env, final LispObject params, final LispObject body) {
+    this.env = env;
+    this.params = params;
+    this.body = body;
+  }
+
+  @Override
+  public LispObject apply(final LispObject args) {
+    var paramCount = 0;
+    var paramPtr = params;
+    while (paramPtr != Util.nil) {
+      paramCount++;
+      paramPtr = Util.cdr(paramPtr);
+    }
+
+    var argCount = 0;
+    var argPtr = args;
+    while (argPtr != Util.nil) {
+      argCount++;
+      argPtr = Util.cdr(argPtr);
+    }
+
+    if (paramCount != argCount) {
+      throw new Error(
+          String.format(
+              "incorrect number of arguments in lambda - expected %d, but got %d",
+              paramCount, argCount));
+    }
+
+    // bindings for all the params
+    paramPtr = Util.car(params);
+    argPtr = Util.car(args);
+    while (paramPtr != Util.nil) {
+      var param = (Symbol) paramPtr;
+      env.addSymbol(param.sym);
+      env.bindSymbol(env.retrieveSymbol(param.sym), argPtr);
+
+      paramPtr = Util.cdr(paramPtr);
+      argPtr = Util.cdr(argPtr);
+    }
+
+    return Evaluator.eval(env, body);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("<lambda>:<%d>", this.hashCode());
+  }
+}
+
 /// Built-in functions
 
-abstract sealed class BuiltinFunction extends LispObject
+abstract sealed class BuiltinFunction extends Function
     permits ConsFunction,
         CarFunction,
         CdrFunction,
         AddFunction,
         SubFunction,
         MulFunction,
-        DivFunction {
-  public abstract LispObject apply(LispObject args);
-}
+        DivFunction {}
 
 final class ConsFunction extends BuiltinFunction {
   @Override
@@ -202,6 +261,19 @@ final class Symbol extends LispObject {
   @Override
   public String toString() {
     return sym;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.sym);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Symbol other) {
+      return this.sym.equalsIgnoreCase(other.sym);
+    }
+    return false;
   }
 }
 
