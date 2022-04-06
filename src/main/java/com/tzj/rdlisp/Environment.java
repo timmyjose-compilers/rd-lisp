@@ -51,10 +51,10 @@ public class Environment {
     return bindings.entrySet();
   }
 
-  public Environment clone(final Environment parentEnv) {
+  public Environment clone() {
     Environment newEnv = new Environment();
 
-    for (var binding : parentEnv.bindings()) {
+    for (var binding : bindings()) {
       var sym = binding.getKey();
       var val = binding.getValue();
 

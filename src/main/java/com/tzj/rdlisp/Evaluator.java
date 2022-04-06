@@ -41,7 +41,7 @@ public class Evaluator {
             }
 
             case "LAMBDA" -> {
-              var closureEnv = Environment.getInitEnv().clone(Environment.getInitEnv());
+              var closureEnv = env.clone();
               var args = Util.car(cons.cdr);
               var body = Util.car(Util.cdr(cons.cdr));
 
