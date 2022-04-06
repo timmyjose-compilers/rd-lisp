@@ -19,6 +19,15 @@ public class Reader {
   private LispObject readList() {
     var form = Util.makeCons(readForm(), Util.nil);
     while (currTok.kind() != TokenType.Eof && currTok.kind() != TokenType.RightParen) {
+      if (currTok.kind() == TokenType.Dot) {
+        advance();
+        var cdr = readForm();
+        if (currTok.kind() != TokenType.RightParen) {
+          throw new RuntimeException("illegal dotted pair - more forms after cdr element");
+        }
+        advance();
+        return Util.reverse(Util.makeCons(cdr, form));
+      }
       form = Util.makeCons(readForm(), form);
     }
 

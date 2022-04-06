@@ -61,6 +61,7 @@ public class Lexer {
         eatIt();
         yield TokenType.LeftParen;
       }
+
       case ')' -> {
         eatIt();
         yield TokenType.RightParen;
@@ -70,10 +71,17 @@ public class Lexer {
         eatIt();
         yield TokenType.Quote;
       }
+
       case '`' -> {
         eatIt();
         yield TokenType.QuasiQuote;
       }
+
+      case '.' -> {
+        eatIt();
+        yield TokenType.Dot;
+      }
+
       case ',' -> {
         eatIt();
         if (currChar() == '@') {
