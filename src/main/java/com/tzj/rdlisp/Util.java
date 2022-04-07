@@ -45,14 +45,14 @@ public class Util {
     if (obj instanceof Cons cons) {
       return cons.car;
     }
-    return Util.nil;
+    throw new Error(String.format("%s is not a pair", obj));
   }
 
   public static LispObject cdr(LispObject obj) {
     if (obj instanceof Cons cons) {
       return cons.cdr;
     }
-    return Util.nil;
+    throw new Error(String.format("%s is not a pair", obj));
   }
 
   public static LispObject copyList(LispObject obj) {
@@ -68,6 +68,22 @@ public class Util {
     return reverse(copy);
   }
 
+  public static int consLength(LispObject obj) {
+    int len = 0;
+    var cons = obj;
+
+    try {
+      while (!cons.isNil()) {
+        len++;
+        cons = Util.cdr(cons);
+      }
+    } catch (Error err) {
+    }
+
+    return len;
+  }
+
   public static final LispObject nil = new Nil();
   public static final LispObject eof = new Eof();
+  public static final LispObject t = new True();
 }

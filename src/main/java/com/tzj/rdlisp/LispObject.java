@@ -2,9 +2,13 @@ package com.tzj.rdlisp;
 
 import java.util.Objects;
 
-abstract sealed class LispObject permits Nil, Integer, Symbol, Cons, Eof, Function {
+abstract sealed class LispObject permits Nil, True, Integer, Symbol, Cons, Eof, Function {
   protected boolean isNil() {
     return false;
+  }
+
+  protected boolean isTrue() {
+    return true;
   }
 
   protected boolean isCons() {
@@ -81,7 +85,9 @@ abstract sealed class BuiltinFunction extends Function
         AddFunction,
         SubFunction,
         MulFunction,
-        DivFunction {}
+        DivFunction,
+        EqFunction,
+        LessThanFunction {}
 
 final class ConsFunction extends BuiltinFunction {
   @Override
@@ -146,8 +152,20 @@ final class Nil extends LispObject {
   }
 
   @Override
+  public boolean isTrue() {
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "NIL";
+  }
+}
+
+final class True extends LispObject {
+  @Override
+  public String toString() {
+    return "T";
   }
 }
 
@@ -239,7 +257,57 @@ final class DivFunction extends BuiltinFunction {
   }
 }
 
-final class Integer extends LispObject {
+final class EqFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error(
+          String.format("incorrect number of arguments for `eq?` - expected 2, got %d", argsLen));
+    }
+
+    var firstArg = Util.car(args);
+    var secondArg = Util.car(Util.cdr(args));
+
+    return firstArg.equals(secondArg) ? Util.t : Util.nil;
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:<eq?>";
+  }
+}
+
+final class LessThanFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error(
+          String.format("incorrect numnber of arguments for `<` - expected 2, got %d", argsLen));
+    }
+
+    if (Util.car(args) instanceof Integer first) {
+      if (Util.car(Util.cdr(args)) instanceof Integer second) {
+        return switch (first.compareTo(second)) {
+          case -1 -> Util.t;
+          default -> Util.nil;
+        };
+      } else {
+        throw new Error("second argument to `<` is not a number");
+      }
+    } else {
+      throw new Error("first argument to `<` is not a number");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "<builtin>:<<>";
+  }
+}
+
+final class Integer extends LispObject implements Comparable<Integer> {
   final int integer;
 
   public Integer(int integer) {
@@ -249,6 +317,17 @@ final class Integer extends LispObject {
   @Override
   public String toString() {
     return String.valueOf(integer);
+  }
+
+  @Override
+  public int compareTo(Integer other) {
+    if (this.integer < other.integer) {
+      return -1;
+    } else if (this.integer == other.integer) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
 }
 

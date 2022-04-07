@@ -94,11 +94,23 @@ public class Lexer {
 
       case '+' -> {
         eatIt();
+        if (Character.isDigit(currChar())) {
+          while (Character.isDigit(currChar())) {
+            eatIt();
+          }
+          yield TokenType.Integer;
+        }
         yield TokenType.Symbol;
       }
 
       case '-' -> {
         eatIt();
+        if (Character.isDigit(currChar())) {
+          while (Character.isDigit(currChar())) {
+            eatIt();
+          }
+          yield TokenType.Integer;
+        }
         yield TokenType.Symbol;
       }
 
@@ -108,6 +120,11 @@ public class Lexer {
       }
 
       case '/' -> {
+        eatIt();
+        yield TokenType.Symbol;
+      }
+
+      case '<' -> {
         eatIt();
         yield TokenType.Symbol;
       }
@@ -174,7 +191,8 @@ public class Lexer {
         while (Character.isLetterOrDigit(currChar())
             || currChar() == '-'
             || currChar() == '>'
-            || currChar() == '$') {
+            || currChar() == '$'
+            || currChar() == '?') {
 
           eatIt();
         }

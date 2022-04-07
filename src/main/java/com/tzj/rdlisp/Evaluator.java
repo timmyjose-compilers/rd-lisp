@@ -3,11 +3,14 @@ package com.tzj.rdlisp;
 public class Evaluator {
   public static LispObject eval(final Environment env, LispObject obj) {
     return switch (obj) {
+      case Nil nil -> nil;
+
       case Integer num -> num;
 
       case Symbol sym -> {
         var symBinding = env.retrieveBinding(sym);
         if (symBinding == null) {
+          System.out.println(env);
           throw new Error(String.format("%s is not bound", sym));
         }
 
@@ -46,6 +49,31 @@ public class Evaluator {
               yield new LambdaExpression(closureEnv, args, body);
             }
 
+            case "IF" -> {
+              var argsLen = Util.consLength(cons.cdr);
+              if (argsLen != 2 && argsLen != 3) {
+                throw new Error(
+                    String.format(
+                        "incorrect number of arguments for `if` - expected between 2 and 3, got"
+                            + " %d",
+                        argsLen));
+              }
+
+              var cond = Util.car(cons.cdr);
+              var true_expr = Util.car(Util.cdr(cons.cdr));
+
+              if (argsLen == 2) {
+                yield Evaluator.eval(env, cond).isTrue()
+                    ? Evaluator.eval(env, true_expr)
+                    : Util.nil;
+              } else {
+                var false_expr = Util.car(Util.cdr(Util.cdr(cons.cdr)));
+                yield Evaluator.eval(env, cond).isTrue()
+                    ? Evaluator.eval(env, true_expr)
+                    : Evaluator.eval(env, false_expr);
+              }
+            }
+
             default -> {
               var binding = env.retrieveBinding(op);
               if (binding instanceof Function fn) {
@@ -61,6 +89,7 @@ public class Evaluator {
 
                 yield fn.apply(args);
               } else {
+                System.out.println(env);
                 throw new Error(String.format("%s is not a function", op));
               }
             }

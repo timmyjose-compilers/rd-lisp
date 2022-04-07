@@ -8,27 +8,35 @@ public class Environment {
   private final Map<Symbol, LispObject> bindings = new HashMap<>();
   private final Map<String, Symbol> symbols = new HashMap<>();
 
-  private static final Environment initialEnv;
+  private static final Environment initEnv;
 
   static {
     // initial environment
-    initialEnv = new Environment();
+    initEnv = new Environment();
 
-    initialEnv.addSymbol("cons");
-    initialEnv.addSymbol("car");
-    initialEnv.addSymbol("cdr");
-    initialEnv.addSymbol("+");
-    initialEnv.addSymbol("-");
-    initialEnv.addSymbol("*");
-    initialEnv.addSymbol("/");
+    initEnv.addSymbol("nil");
+    initEnv.addSymbol("t");
+    initEnv.addSymbol("cons");
+    initEnv.addSymbol("car");
+    initEnv.addSymbol("cdr");
+    initEnv.addSymbol("+");
+    initEnv.addSymbol("-");
+    initEnv.addSymbol("*");
+    initEnv.addSymbol("/");
+    initEnv.addSymbol("eq?");
+    initEnv.addSymbol("<");
 
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("cons"), new ConsFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("car"), new CarFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("cdr"), new CdrFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("+"), new AddFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("-"), new SubFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("*"), new MulFunction());
-    initialEnv.bindSymbol(initialEnv.retrieveSymbol("/"), new DivFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("nil"), new Nil());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("t"), new True());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("cons"), new ConsFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("car"), new CarFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("cdr"), new CdrFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("+"), new AddFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("-"), new SubFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("*"), new MulFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("/"), new DivFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("eq?"), new EqFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("<"), new LessThanFunction());
   }
 
   public void addSymbol(String symStr) {
@@ -66,7 +74,7 @@ public class Environment {
   }
 
   public static Environment getInitEnv() {
-    return initialEnv;
+    return initEnv;
   }
 
   @Override

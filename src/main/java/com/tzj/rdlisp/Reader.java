@@ -17,7 +17,7 @@ public class Reader {
   }
 
   private LispObject readList() {
-    var form = Util.makeCons(readForm(), Util.nil);
+    var form = Util.nil;
     while (currTok.kind() != TokenType.Eof && currTok.kind() != TokenType.RightParen) {
       if (currTok.kind() == TokenType.Dot) {
         advance();
