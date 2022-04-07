@@ -33,6 +33,9 @@ final class LambdaExpression extends Function {
 
   @Override
   public LispObject apply(LispObject args) {
+    // spawn a new environment ("frame") for this closure's execution.
+    env = env.clone();
+
     var paramCount = 0;
     var paramPtr = params;
     while (paramPtr != Util.nil) {
@@ -317,6 +320,19 @@ final class Integer extends LispObject implements Comparable<Integer> {
   @Override
   public String toString() {
     return String.valueOf(integer);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Integer other) {
+      return this.integer == other.integer;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(this);
   }
 
   @Override

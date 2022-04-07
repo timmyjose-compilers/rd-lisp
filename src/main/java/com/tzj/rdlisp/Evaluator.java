@@ -10,7 +10,6 @@ public class Evaluator {
       case Symbol sym -> {
         var symBinding = env.retrieveBinding(sym);
         if (symBinding == null) {
-          System.out.println(env);
           throw new Error(String.format("%s is not bound", sym));
         }
 
@@ -34,11 +33,23 @@ public class Evaluator {
                   || !Util.cdr(Util.cdr(cons.cdr)).isNil()) {
                 throw new Error("invalid number of arguments for def");
               }
-              var symName = Util.car(cons.cdr);
-              var symVal = Evaluator.eval(env, Util.car(Util.cdr(cons.cdr)));
 
-              env.bindSymbol((Symbol) symName, symVal);
-              yield symName;
+              if (Util.car(cons.cdr) instanceof Symbol sym) {
+                var symVal = Evaluator.eval(env, Util.car(Util.cdr(cons.cdr)));
+                env.bindSymbol(sym, symVal);
+
+                // since the binding in the current environment was done after the
+                // env for the closure was already passed in
+                if (symVal instanceof LambdaExpression lambda) {
+                  lambda.env.bindSymbol(sym, symVal);
+                }
+
+                yield sym;
+              } else {
+                throw new Error(
+                    String.format(
+                        "`def` expects a symbol to bind, but got %s", Util.car(cons.cdr)));
+              }
             }
 
             case "LAMBDA" -> {
@@ -76,6 +87,12 @@ public class Evaluator {
 
             default -> {
               var binding = env.retrieveBinding(op);
+
+              if (binding == null) {
+                // if not found in the current scope, try in the global env
+                binding = Environment.getInitEnv().retrieveBinding(op);
+              }
+
               if (binding instanceof Function fn) {
                 var args = Util.copyList(cons.cdr);
 
@@ -89,7 +106,6 @@ public class Evaluator {
 
                 yield fn.apply(args);
               } else {
-                System.out.println(env);
                 throw new Error(String.format("%s is not a function", op));
               }
             }
