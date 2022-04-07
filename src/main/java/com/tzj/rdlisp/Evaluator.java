@@ -8,8 +8,6 @@ public class Evaluator {
       case Symbol sym -> {
         var symBinding = env.retrieveBinding(sym);
         if (symBinding == null) {
-          System.out.println("here for " + sym);
-          System.out.println(env);
           throw new Error(String.format("%s is not bound", sym));
         }
 

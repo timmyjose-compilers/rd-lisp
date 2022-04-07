@@ -28,7 +28,7 @@ final class LambdaExpression extends Function {
   }
 
   @Override
-  public LispObject apply(final LispObject args) {
+  public LispObject apply(LispObject args) {
     var paramCount = 0;
     var paramPtr = params;
     while (paramPtr != Util.nil) {
@@ -50,16 +50,17 @@ final class LambdaExpression extends Function {
               paramCount, argCount));
     }
 
-    // bindings for all the params
-    paramPtr = Util.car(params);
-    argPtr = Util.car(args);
-    while (paramPtr != Util.nil) {
-      var param = (Symbol) paramPtr;
-      env.addSymbol(param.sym);
-      env.bindSymbol(env.retrieveSymbol(param.sym), argPtr);
+    // bindIngs for all the params
+    var runParams = Util.copyList(params);
+    var runArgs = Util.copyList(args);
 
-      paramPtr = Util.cdr(paramPtr);
-      argPtr = Util.cdr(argPtr);
+    while (runParams != Util.nil) {
+      var param = (Symbol) Util.car(runParams);
+      env.addSymbol(param.sym);
+      env.bindSymbol(env.retrieveSymbol(param.sym), Util.car(runArgs));
+
+      runParams = Util.cdr(runParams);
+      runArgs = Util.cdr(runArgs);
     }
 
     return Evaluator.eval(env, body);
