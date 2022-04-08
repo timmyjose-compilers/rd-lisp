@@ -34,40 +34,43 @@ final class LambdaExpression extends Function {
   @Override
   public LispObject apply(LispObject args) {
     // spawn a new environment ("frame") for this closure's execution.
-    env = env.clone();
+    try {
+      var env = this.env.clone();
+      var paramCount = 0;
+      var paramPtr = params;
+      while (paramPtr != Util.nil) {
+        paramCount++;
+        paramPtr = Util.cdr(paramPtr);
+      }
 
-    var paramCount = 0;
-    var paramPtr = params;
-    while (paramPtr != Util.nil) {
-      paramCount++;
-      paramPtr = Util.cdr(paramPtr);
-    }
+      var argCount = 0;
+      var argPtr = args;
+      while (argPtr != Util.nil) {
+        argCount++;
+        argPtr = Util.cdr(argPtr);
+      }
 
-    var argCount = 0;
-    var argPtr = args;
-    while (argPtr != Util.nil) {
-      argCount++;
-      argPtr = Util.cdr(argPtr);
-    }
+      if (paramCount != argCount) {
+        throw new Error(
+            String.format(
+                "incorrect number of arguments in lambda - expected %d, but got %d",
+                paramCount, argCount));
+      }
 
-    if (paramCount != argCount) {
-      throw new Error(
-          String.format(
-              "incorrect number of arguments in lambda - expected %d, but got %d",
-              paramCount, argCount));
-    }
+      // bindIngs for all the params
+      var runParams = Util.copyList(params);
+      var runArgs = Util.copyList(args);
 
-    // bindIngs for all the params
-    var runParams = Util.copyList(params);
-    var runArgs = Util.copyList(args);
+      while (runParams != Util.nil) {
+        var param = (Symbol) Util.car(runParams);
+        env.addSymbol(param.sym);
+        env.bindSymbol(env.retrieveSymbol(param.sym), Util.car(runArgs));
 
-    while (runParams != Util.nil) {
-      var param = (Symbol) Util.car(runParams);
-      env.addSymbol(param.sym);
-      env.bindSymbol(env.retrieveSymbol(param.sym), Util.car(runArgs));
-
-      runParams = Util.cdr(runParams);
-      runArgs = Util.cdr(runArgs);
+        runParams = Util.cdr(runParams);
+        runArgs = Util.cdr(runArgs);
+      }
+    } finally {
+      env = null;
     }
 
     return Evaluator.eval(env, body);
