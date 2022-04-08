@@ -407,6 +407,19 @@ final class Cons extends LispObject {
     sb.append(")");
     return sb.toString();
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Cons other) {
+      return this.car.equals(other.car) && this.cdr.equals(other.cdr);
+    }
+    return false;
+  }
 }
 
 final class Eof extends LispObject {
