@@ -189,22 +189,18 @@ final class True extends LispObject {
 final class AddFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    var argsLen = Util.consLength(args);
-    if (argsLen != 2) {
-      throw new Error("`+` expects exactly two arguments");
+    var res = 0;
+
+    while (args != Util.nil) {
+      if (Util.car(args) instanceof Integer n) {
+        res += n.integer;
+      } else {
+        throw new Error(String.format("\"%s\" passed to `+` is not a number", Util.car(args)));
+      }
+      args = Util.cdr(args);
     }
 
-    var n = Util.car(args);
-    if (n instanceof Integer nn) {
-      var m = Util.car(Util.cdr(args));
-      if (m instanceof Integer mm) {
-        return new Integer(nn.integer + mm.integer);
-      } else {
-        throw new Error("second argument to `+` is not a number");
-      }
-    } else {
-      throw new Error("first argument to `+` is not a number");
-    }
+    return new Integer(res);
   }
 
   @Override
@@ -216,22 +212,25 @@ final class AddFunction extends BuiltinFunction {
 final class SubFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    var argsLen = Util.consLength(args);
-    if (argsLen != 2) {
-      throw new Error("`-` expects exactly two arguments");
+    var res = 0;
+
+    if (Util.car(args) instanceof Integer m) {
+      res = m.integer;
+      args = Util.cdr(args);
+    } else {
+      throw new Error(String.format("\"%s\" passed to `-` is not a number", Util.car(args)));
     }
 
-    var n = Util.car(args);
-    if (n instanceof Integer nn) {
-      var m = Util.car(Util.cdr(args));
-      if (m instanceof Integer mm) {
-        return new Integer(nn.integer - mm.integer);
+    while (args != Util.nil) {
+      if (Util.car(args) instanceof Integer n) {
+        res -= n.integer;
       } else {
-        throw new Error("second argument to `-` is not a number");
+        throw new Error(String.format("\"%s\" passed to `-` is not a number", Util.car(args)));
       }
-    } else {
-      throw new Error("first argument to `-` is not a number");
+      args = Util.cdr(args);
     }
+
+    return new Integer(res);
   }
 
   @Override
@@ -243,21 +242,18 @@ final class SubFunction extends BuiltinFunction {
 final class MulFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    var argsLen = Util.consLength(args);
-    if (argsLen != 2) {
-      throw new Error("`*` expects exactly two arguments");
-    }
-    var n = Util.car(args);
-    if (n instanceof Integer nn) {
-      var m = Util.car(Util.cdr(args));
-      if (m instanceof Integer mm) {
-        return new Integer(nn.integer * mm.integer);
+    var res = 1;
+
+    while (args != Util.nil) {
+      if (Util.car(args) instanceof Integer n) {
+        res *= n.integer;
       } else {
-        throw new Error("second argument to `*` is not a number");
+        throw new Error(String.format("\"%s\" passed to `*` is not a number", Util.car(args)));
       }
-    } else {
-      throw new Error("first argument to `*` is not a number");
+      args = Util.cdr(args);
     }
+
+    return new Integer(res);
   }
 
   @Override
@@ -269,22 +265,24 @@ final class MulFunction extends BuiltinFunction {
 final class DivFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    var argsLen = Util.consLength(args);
-    if (argsLen != 2) {
-      throw new Error("`/` expects exactly two arguments");
+    var res = 0;
+    if (Util.car(args) instanceof Integer m) {
+      res = m.integer;
+      args = Util.cdr(args);
+    } else {
+      throw new Error(String.format("\"%s\" passed to `/` is not a number", Util.car(args)));
     }
 
-    var n = Util.car(args);
-    if (n instanceof Integer nn) {
-      var m = Util.car(Util.cdr(args));
-      if (m instanceof Integer mm) {
-        return new Integer(nn.integer / mm.integer);
+    while (args != Util.nil) {
+      if (Util.car(args) instanceof Integer n) {
+        res /= n.integer;
       } else {
-        throw new Error("second argument to `/` is not a number");
+        throw new Error(String.format("\"%s\" passed to `/` is not a number", Util.car(args)));
       }
-    } else {
-      throw new Error("first argument to `/` is not a number");
+      args = Util.cdr(args);
     }
+
+    return new Integer(res);
   }
 
   @Override
