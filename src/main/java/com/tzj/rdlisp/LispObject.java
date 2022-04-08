@@ -95,8 +95,11 @@ abstract sealed class BuiltinFunction extends Function
 final class ConsFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    if (Util.cdr(args).isNil() || !Util.cdr(Util.cdr(args)).isNil()) {
-      throw new Error("invalid number of arguments for `cons`");
+    var argsLen = Util.consLength(args);
+
+    if (argsLen != 2) {
+      throw new Error(
+          String.format("invalid number of arguments for `cons` - expected 2, got %d", argsLen));
     }
 
     return Util.makeCons(Util.car(args), Util.cdr(args));
@@ -111,14 +114,20 @@ final class ConsFunction extends BuiltinFunction {
 final class CarFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
     args = Util.car(args);
+    if (argsLen != 1) {
+      System.out.println(args);
+      throw new Error(
+          String.format("invalid number of arguments for `car` - expected 1, got %d", argsLen));
+    }
 
     if (args == Util.nil) {
       return Util.nil;
     } else if (args instanceof Cons cons) {
       return cons.car;
     } else {
-      throw new Error(String.format("Cannot take the car of %s", args));
+      throw new Error(String.format("Cannot take the car of %s - not a Cons cell", args));
     }
   }
 
@@ -131,14 +140,19 @@ final class CarFunction extends BuiltinFunction {
 final class CdrFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
     args = Util.car(args);
+    if (argsLen != 1) {
+      throw new Error(
+          String.format("invalid number of arguments for `cdr` - expected 1, got %d", argsLen));
+    }
 
     if (args == Util.nil) {
       return Util.nil;
     } else if (args instanceof Cons cons) {
       return cons.cdr;
     } else {
-      throw new Error(String.format("Cannot take the car of %s", args));
+      throw new Error(String.format("Cannot take the cdr of %s - not a Cons cell", args));
     }
   }
 
@@ -175,6 +189,11 @@ final class True extends LispObject {
 final class AddFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error("`+` expects exactly two arguments");
+    }
+
     var n = Util.car(args);
     if (n instanceof Integer nn) {
       var m = Util.car(Util.cdr(args));
@@ -197,6 +216,11 @@ final class AddFunction extends BuiltinFunction {
 final class SubFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error("`-` expects exactly two arguments");
+    }
+
     var n = Util.car(args);
     if (n instanceof Integer nn) {
       var m = Util.car(Util.cdr(args));
@@ -219,6 +243,10 @@ final class SubFunction extends BuiltinFunction {
 final class MulFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error("`*` expects exactly two arguments");
+    }
     var n = Util.car(args);
     if (n instanceof Integer nn) {
       var m = Util.car(Util.cdr(args));
@@ -241,6 +269,11 @@ final class MulFunction extends BuiltinFunction {
 final class DivFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    var argsLen = Util.consLength(args);
+    if (argsLen != 2) {
+      throw new Error("`/` expects exactly two arguments");
+    }
+
     var n = Util.car(args);
     if (n instanceof Integer nn) {
       var m = Util.car(Util.cdr(args));
