@@ -52,8 +52,45 @@ public class Evaluator {
               }
             }
 
+            case "DEFMACRO" -> {
+              if (cons.cdr.isNil()) {
+                throw new Error("macro name is not available");
+              }
+
+              if (Util.cdr(cons.cdr).isNil()) {
+                throw new Error("macro argumnents missing");
+              }
+
+              if (Util.cdr(Util.cdr(cons.cdr)).isNil()) {
+                throw new Error("macro body missing");
+              }
+
+              if (Util.car(cons.cdr) instanceof Symbol name) {
+                var args = Util.car(Util.cdr(cons.cdr));
+                var body = Util.car(Util.cdr(Util.cdr(cons.cdr)));
+
+                var macroFn = new MacroFunction(env, name, args, body);
+                env.bindSymbol(name, macroFn);
+
+                yield macroFn;
+              } else {
+                throw new Error(
+                    String.format(
+                        "`defmacro` name must be a symbol, but got %s", Util.car(cons.cdr)));
+              }
+            }
+
             case "LAMBDA" -> {
               var closureEnv = env.clone();
+
+              if (cons.cdr.isNil()) {
+                throw new Error("lambda args missing");
+              }
+
+              if (Util.cdr(cons.cdr).isNil()) {
+                throw new Error("lambda body missing");
+              }
+
               var args = Util.car(cons.cdr);
               var body = Util.car(Util.cdr(cons.cdr));
 
@@ -95,15 +132,20 @@ public class Evaluator {
               if (binding instanceof Function fn) {
                 var args = Util.copyList(cons.cdr);
 
-                var argPtr = args;
-                while (argPtr != Util.nil) {
-                  if (argPtr instanceof Cons pair) {
-                    pair.car = Evaluator.eval(env, pair.car);
-                    argPtr = pair.cdr;
-                  }
-                }
+                if (fn instanceof MacroFunction macroFn) {
+                  var expansion = macroFn.apply(args);
+                  yield Evaluator.eval(env, expansion);
+                } else {
 
-                yield fn.apply(args);
+                  var argPtr = args;
+                  while (argPtr != Util.nil) {
+                    if (argPtr instanceof Cons pair) {
+                      pair.car = Evaluator.eval(env, pair.car);
+                      argPtr = pair.cdr;
+                    }
+                  }
+                  yield fn.apply(args);
+                }
               } else {
                 throw new Error(String.format("%s is not a function", op));
               }

@@ -16,7 +16,8 @@ abstract sealed class LispObject permits Nil, True, Integer, Symbol, Cons, Eof, 
   }
 }
 
-abstract sealed class Function extends LispObject permits LambdaExpression, BuiltinFunction {
+abstract sealed class Function extends LispObject
+    permits LambdaExpression, BuiltinFunction, MacroFunction {
   public abstract LispObject apply(LispObject args);
 }
 
@@ -94,7 +95,6 @@ abstract sealed class BuiltinFunction extends Function
 final class ConsFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
-    System.out.println("args = " + args);
     var argsLen = Util.consLength(args);
 
     if (argsLen != 2) {
@@ -118,7 +118,6 @@ final class CarFunction extends BuiltinFunction {
     args = Util.car(args);
 
     if (argsLen != 1) {
-      System.out.println(args);
       throw new Error(
           String.format("invalid number of arguments for `car` - expected 1, got %d", argsLen));
     }
@@ -353,6 +352,27 @@ final class LessThanFunction extends BuiltinFunction {
   @Override
   public String toString() {
     return "<builtin>:<<>";
+  }
+}
+
+final class MacroFunction extends Function {
+  public Symbol name;
+  private LambdaExpression lambda;
+
+  public MacroFunction(
+      final Environment env, final Symbol name, final LispObject args, final LispObject body) {
+    this.name = name;
+    this.lambda = new LambdaExpression(env, args, body);
+  }
+
+  @Override
+  public LispObject apply(LispObject args) {
+    return lambda.apply(args);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("<macro>:<%s><%d>", name, this.hashCode());
   }
 }
 
