@@ -54,7 +54,7 @@ public class Evaluator {
 
             case "DEFMACRO" -> {
               if (cons.cdr.isNil()) {
-                throw new Error("macro name is not available");
+                throw new Error("macro name missing");
               }
 
               if (Util.cdr(cons.cdr).isNil()) {
@@ -77,6 +77,33 @@ public class Evaluator {
                 throw new Error(
                     String.format(
                         "`defmacro` name must be a symbol, but got %s", Util.car(cons.cdr)));
+              }
+            }
+
+            case "DEFUN" -> {
+              if (cons.cdr.isNil()) {
+                throw new Error("function name missing");
+              }
+
+              if (Util.cdr(cons.cdr).isNil()) {
+                throw new Error("function arguments missing");
+              }
+
+              if (Util.cdr(Util.cdr(cons.cdr)).isNil()) {
+                throw new Error("function body missing");
+              }
+
+              if (Util.car(cons.cdr) instanceof Symbol name) {
+                var args = Util.car(Util.cdr(cons.cdr));
+                var body = Util.car(Util.cdr(Util.cdr(cons.cdr)));
+
+                var fn = new Function(env, name, args, body);
+                env.bindSymbol(name, fn);
+
+                yield fn;
+              } else {
+                throw new Error(
+                    String.format("`defun` name must be a symbol, but got %s", Util.car(cons.cdr)));
               }
             }
 
@@ -129,14 +156,13 @@ public class Evaluator {
                 binding = Environment.getInitEnv().retrieveBinding(op);
               }
 
-              if (binding instanceof Function fn) {
+              if (binding instanceof ApplicableExpression fn) {
                 var args = Util.copyList(cons.cdr);
 
                 if (fn instanceof MacroFunction macroFn) {
                   var expansion = macroFn.apply(args);
                   yield Evaluator.eval(env, expansion);
                 } else {
-
                   var argPtr = args;
                   while (argPtr != Util.nil) {
                     if (argPtr instanceof Cons pair) {

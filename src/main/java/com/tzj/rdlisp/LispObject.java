@@ -2,7 +2,8 @@ package com.tzj.rdlisp;
 
 import java.util.Objects;
 
-abstract sealed class LispObject permits Nil, True, Integer, Symbol, Cons, Eof, Function {
+abstract sealed class LispObject
+    permits Nil, True, Integer, Symbol, Cons, Eof, ApplicableExpression {
   protected boolean isNil() {
     return false;
   }
@@ -16,12 +17,12 @@ abstract sealed class LispObject permits Nil, True, Integer, Symbol, Cons, Eof, 
   }
 }
 
-abstract sealed class Function extends LispObject
-    permits LambdaExpression, BuiltinFunction, MacroFunction {
+abstract sealed class ApplicableExpression extends LispObject
+    permits LambdaExpression, BuiltinFunction, MacroFunction, Function {
   public abstract LispObject apply(LispObject args);
 }
 
-final class LambdaExpression extends Function {
+final class LambdaExpression extends ApplicableExpression {
   public Environment env;
   public LispObject params;
   public LispObject body;
@@ -81,7 +82,7 @@ final class LambdaExpression extends Function {
 
 /// Built-in functions
 
-abstract sealed class BuiltinFunction extends Function
+abstract sealed class BuiltinFunction extends ApplicableExpression
     permits ConsFunction,
         CarFunction,
         CdrFunction,
@@ -355,14 +356,14 @@ final class LessThanFunction extends BuiltinFunction {
   }
 }
 
-final class MacroFunction extends Function {
+final class MacroFunction extends ApplicableExpression {
   public Symbol name;
   private LambdaExpression lambda;
 
   public MacroFunction(
-      final Environment env, final Symbol name, final LispObject args, final LispObject body) {
+      final Environment env, final Symbol name, final LispObject params, final LispObject body) {
     this.name = name;
-    this.lambda = new LambdaExpression(env, args, body);
+    this.lambda = new LambdaExpression(env, params, body);
   }
 
   @Override
@@ -373,6 +374,27 @@ final class MacroFunction extends Function {
   @Override
   public String toString() {
     return String.format("<macro>:<%s><%d>", name, this.hashCode());
+  }
+}
+
+final class Function extends ApplicableExpression {
+  public Symbol name;
+  private LambdaExpression lambda;
+
+  public Function(
+      final Environment env, final Symbol name, final LispObject params, final LispObject body) {
+    this.name = name;
+    this.lambda = new LambdaExpression(env, params, body);
+  }
+
+  @Override
+  public LispObject apply(final LispObject args) {
+    return lambda.apply(args);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("<function>:<%s><%d>", name, this.hashCode());
   }
 }
 
