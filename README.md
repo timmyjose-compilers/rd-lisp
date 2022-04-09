@@ -13,7 +13,7 @@ A simple minimal Lisp interpreter, mainly for the purposes of learning how Lisps
 Basic language:
 
 ```
-  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java
   Loaded up the standard library  
   > 1
   1
@@ -110,7 +110,7 @@ Basic language:
 With the `defun` special form:
 
 ```
-  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java
   Loaded up the standard library
 
   > (defun even? (n) (if (eq? n 0) t (odd? (- n 1))))
@@ -129,7 +129,7 @@ With the `defun` special form:
 With macros:
 
 ```
-  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java
   Loaded up the standard library
 
   > (defmacro ignore (x) (cons 'quote (cons x nil)))
@@ -157,8 +157,6 @@ With macros:
 With quasiquoted macros:
 
 ```
-  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
-  Loaded up the standard library
 ```
 
 ## LICENCE
