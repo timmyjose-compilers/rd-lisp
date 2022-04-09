@@ -52,7 +52,7 @@ public class Reader {
       case Quote -> {
         advance();
         var form = readForm();
-        yield Util.makeCons(Util.makeSymbol("quote"), Util.makeCons(form, Util.nil));
+        yield Util.makeCons(Util.quote, Util.makeCons(form, Util.nil));
       }
 
       case Symbol -> {

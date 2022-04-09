@@ -87,7 +87,6 @@ public class Evaluator {
 
             default -> {
               var binding = env.retrieveBinding(op);
-
               if (binding == null) {
                 // if not found in the current scope, try in the global env
                 binding = Environment.getInitEnv().retrieveBinding(op);

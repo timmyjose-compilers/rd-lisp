@@ -83,6 +83,7 @@ public class Util {
     return len;
   }
 
+  public static final LispObject quote = new Symbol("quote");
   public static final LispObject nil = new Nil();
   public static final LispObject eof = new Eof();
   public static final LispObject t = new True();

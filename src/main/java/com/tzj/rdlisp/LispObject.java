@@ -94,6 +94,7 @@ abstract sealed class BuiltinFunction extends Function
 final class ConsFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
+    System.out.println("args = " + args);
     var argsLen = Util.consLength(args);
 
     if (argsLen != 2) {
@@ -101,7 +102,7 @@ final class ConsFunction extends BuiltinFunction {
           String.format("invalid number of arguments for `cons` - expected 2, got %d", argsLen));
     }
 
-    return Util.makeCons(Util.car(args), Util.cdr(args));
+    return Util.makeCons(Util.car(args), Util.car(Util.cdr(args)));
   }
 
   @Override
@@ -115,13 +116,14 @@ final class CarFunction extends BuiltinFunction {
   public LispObject apply(LispObject args) {
     var argsLen = Util.consLength(args);
     args = Util.car(args);
+
     if (argsLen != 1) {
       System.out.println(args);
       throw new Error(
           String.format("invalid number of arguments for `car` - expected 1, got %d", argsLen));
     }
 
-    if (args == Util.nil) {
+    if (args.equals(Util.nil)) {
       return Util.nil;
     } else if (args instanceof Cons cons) {
       return cons.car;
@@ -141,12 +143,13 @@ final class CdrFunction extends BuiltinFunction {
   public LispObject apply(LispObject args) {
     var argsLen = Util.consLength(args);
     args = Util.car(args);
+
     if (argsLen != 1) {
       throw new Error(
           String.format("invalid number of arguments for `cdr` - expected 1, got %d", argsLen));
     }
 
-    if (args == Util.nil) {
+    if (args.equals(Util.nil)) {
       return Util.nil;
     } else if (args instanceof Cons cons) {
       return cons.cdr;
@@ -175,6 +178,19 @@ final class Nil extends LispObject {
   @Override
   public String toString() {
     return "NIL";
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Nil) {
+      return true;
+    }
+    return false;
   }
 }
 
