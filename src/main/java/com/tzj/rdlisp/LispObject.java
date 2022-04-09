@@ -91,7 +91,9 @@ abstract sealed class BuiltinFunction extends ApplicableExpression
         MulFunction,
         DivFunction,
         EqFunction,
-        LessThanFunction {}
+        LessThanFunction,
+        ApplyFunction,
+        PairFunction {}
 
 final class ConsFunction extends BuiltinFunction {
   @Override
@@ -353,6 +355,29 @@ final class LessThanFunction extends BuiltinFunction {
   @Override
   public String toString() {
     return "<builtin>:<<>";
+  }
+}
+
+final class ApplyFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    if (Util.car(args) instanceof ApplicableExpression fn) {
+      args = Util.cdr(args);
+      if (!args.isCons()) {
+        throw new Error("the arguments to the function for `apply` must be a list");
+      }
+
+      return fn.apply(args);
+    } else {
+      throw new Error(String.format("%s is not a function", Util.car(args)));
+    }
+  }
+}
+
+final class PairFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    return Util.car(args).isCons() ? Util.t : Util.nil;
   }
 }
 
