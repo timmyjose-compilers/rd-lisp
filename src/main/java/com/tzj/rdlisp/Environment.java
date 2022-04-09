@@ -38,6 +38,7 @@ public class Environment {
     initEnv.bindSymbol(initEnv.retrieveSymbol("*"), new MulFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("/"), new DivFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("eq?"), new EqFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("<"), new LessThanFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("apply"), new ApplyFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("pair?"), new PairFunction());
   }

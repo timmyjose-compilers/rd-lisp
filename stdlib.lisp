@@ -26,3 +26,11 @@
          nil
          lst))
 
+(defun filter (pred lst)
+  (foldr (lambda (x rest)
+           (if (pred x)
+             (cons x rest)
+             rest))
+         nil
+         lst))
+

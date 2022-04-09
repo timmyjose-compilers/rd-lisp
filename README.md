@@ -14,6 +14,7 @@ Basic language:
 
 ```
   $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  Loaded up the standard library  
   > 1
   1
 
@@ -106,11 +107,59 @@ Basic language:
   
 ```
 
+With the `defun` special form:
 
-Macros:
+```
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  Loaded up the standard library
 
-TBD
+  > (defun even? (n) (if (eq? n 0) t (odd? (- n 1))))
+  <function>:<EVEN?><74767163>
 
+  > (defun odd? (n) (if (eq? n 0) nil (even? (- n 1))))
+  <function>:<ODD?><827083818>
+
+  > (filter even? '(1 2 3 4 5))
+  (2 4)
+
+  > (filter odd? '(1 2 3 4 5))
+  (1 3 5)
+```
+
+With macros:
+
+```
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  Loaded up the standard library
+
+  > (defmacro ignore (x) (cons 'quote (cons x nil)))
+  <macro>:<IGNORE><52818027>
+
+  > (ignore (+ 1 2))
+  (+ 1 2)
+
+  > (ignore foo)
+  FOO
+
+  > foo
+  FOO is not bound
+
+  > (defmacro when (cond body) (cons 'if (cons cond (cons body nil))))
+  <macro>:<WHEN><578205442>
+
+  > (when (eq? 1 1) 100)
+  100
+
+  > (when (eq? 1 0) 100)
+  NIL
+```
+
+With quasiquoted macros:
+
+```
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  Loaded up the standard library
+```
 
 ## LICENCE
 
