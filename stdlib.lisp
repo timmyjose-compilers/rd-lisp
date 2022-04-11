@@ -34,3 +34,5 @@
          nil
          lst))
 
+(defun list (&rest items)
+  items)
