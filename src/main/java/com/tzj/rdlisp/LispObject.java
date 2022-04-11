@@ -523,12 +523,13 @@ final class Cons extends LispObject {
     sb.append(car.toString());
     var obj = cdr;
 
-    while (obj != Util.nil) {
+    while (!obj.equals(Util.nil)) {
       if (obj instanceof Cons cons) {
         sb.append(" ");
         sb.append(cons.car.toString());
         obj = cons.cdr;
       } else {
+        System.out.println("obj = " + obj);
         sb.append(" . ");
         sb.append(obj.toString());
         break;
