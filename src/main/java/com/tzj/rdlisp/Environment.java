@@ -27,6 +27,7 @@ public class Environment {
     initEnv.addSymbol("<");
     initEnv.addSymbol("apply");
     initEnv.addSymbol("pair?");
+    initEnv.addSymbol("null?");
 
     initEnv.bindSymbol(initEnv.retrieveSymbol("nil"), new Nil());
     initEnv.bindSymbol(initEnv.retrieveSymbol("t"), new True());
@@ -40,7 +41,8 @@ public class Environment {
     initEnv.bindSymbol(initEnv.retrieveSymbol("eq?"), new EqFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("<"), new LessThanFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("apply"), new ApplyFunction());
-    initEnv.bindSymbol(initEnv.retrieveSymbol("pair?"), new PairFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("pair?"), new PairCheckFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("null?"), new NullCheckFunction());
   }
 
   public void addSymbol(String symStr) {

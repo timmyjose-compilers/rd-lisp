@@ -110,7 +110,8 @@ abstract sealed class BuiltinFunction extends ApplicableExpression
         EqFunction,
         LessThanFunction,
         ApplyFunction,
-        PairFunction {}
+        PairCheckFunction,
+        NullCheckFunction {}
 
 final class ConsFunction extends BuiltinFunction {
   @Override
@@ -391,10 +392,17 @@ final class ApplyFunction extends BuiltinFunction {
   }
 }
 
-final class PairFunction extends BuiltinFunction {
+final class PairCheckFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
     return Util.car(args).isCons() ? Util.t : Util.nil;
+  }
+}
+
+final class NullCheckFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    return Util.car(args).isNil() ? Util.t : Util.nil;
   }
 }
 
