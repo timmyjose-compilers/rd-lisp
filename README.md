@@ -154,6 +154,40 @@ With macros:
   NIL
 ```
 
+With variadic functions:
+
+```
+$ mvn -q clean && mvn -q -T8 compile && mvn -q exec:java
+Loaded up the standard library
+
+  > (defun add (x y &rest nums) (foldl + 0 (cons x (cons y nums))))
+  <function>:<ADD><74767163>
+
+  > (add 1)
+  incorrect number of arguments in lambda - expected 2, but got 1
+
+  > (add 1 2)
+
+  3
+  > (add 1 2 3)
+
+  6
+  > (add 1 2 3 4 5 6 7 8 9 10)
+  55
+
+  > (defun foo (&rest args) args)
+  <function>:<FOO><827083818>
+
+  > (foo 1 2 3 4 5)
+  (1 2 3 4 5)
+
+  > (defun bar (x y &rest args &rest args-again) nil)
+  can have at most one &rest param declaration, but got 2
+
+  > (defun bar (&rest args x) x)
+  cannot define &rest after required positional params
+```
+
 With quasiquoted macros:
 
 ```

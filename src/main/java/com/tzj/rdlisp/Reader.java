@@ -49,6 +49,17 @@ public class Reader {
         yield integer;
       }
 
+      case AndRest -> {
+        advance();
+        var form = readForm();
+        if (!(form instanceof Symbol)) {
+          throw new Error(
+              String.format("&rest expects a symbol to bind params to, but got %s", form));
+        }
+
+        yield Util.makeCons(Util.vararg, form);
+      }
+
       case Quote -> {
         advance();
         var form = readForm();

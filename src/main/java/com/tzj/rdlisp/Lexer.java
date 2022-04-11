@@ -67,6 +67,24 @@ public class Lexer {
         yield TokenType.RightParen;
       }
 
+      case '&' -> {
+        eatIt();
+        if (currChar() == 'r') {
+          eatIt();
+          if (currChar() == 'e') {
+            eatIt();
+            if (currChar() == 's') {
+              eatIt();
+              if (currChar() == 't') {
+                eatIt();
+                yield TokenType.AndRest;
+              }
+            }
+          }
+        }
+        throw new Error(String.format("expected &rest, but got %s", currBuf.toString()));
+      }
+
       case '\'' -> {
         eatIt();
         yield TokenType.Quote;

@@ -22,6 +22,7 @@ abstract sealed class ApplicableExpression extends LispObject
   public abstract LispObject apply(LispObject args);
 }
 
+// the basis of all applicable expressions
 final class LambdaExpression extends ApplicableExpression {
   public Environment env;
   public LispObject params;
@@ -38,9 +39,16 @@ final class LambdaExpression extends ApplicableExpression {
     // spawn a new environment ("frame") for this closure's execution.
     var env = this.env.clone();
     var paramCount = 0;
+
     var paramPtr = params;
+    boolean varargs = false;
     while (paramPtr != Util.nil) {
-      paramCount++;
+      var param = Util.car(paramPtr);
+      if (param.isCons()) {
+        varargs = true;
+      } else {
+        paramCount++;
+      }
       paramPtr = Util.cdr(paramPtr);
     }
 
@@ -51,7 +59,7 @@ final class LambdaExpression extends ApplicableExpression {
       argPtr = Util.cdr(argPtr);
     }
 
-    if (paramCount != argCount) {
+    if (paramCount > argCount || argCount > paramCount && !varargs) {
       throw new Error(
           String.format(
               "incorrect number of arguments in lambda - expected %d, but got %d",
@@ -63,6 +71,15 @@ final class LambdaExpression extends ApplicableExpression {
     var runArgs = Util.copyList(args);
 
     while (runParams != Util.nil) {
+      // handle varargs - only &rest for now
+      if (Util.car(runParams).isCons()) {
+        runParams = Util.car(runParams);
+
+        var varargParam = (Symbol) Util.cdr(runParams);
+        env.addSymbol(varargParam.sym);
+        env.bindSymbol(env.retrieveSymbol(varargParam.sym), runArgs);
+        break;
+      }
       var param = (Symbol) Util.car(runParams);
       env.addSymbol(param.sym);
       env.bindSymbol(env.retrieveSymbol(param.sym), Util.car(runArgs));

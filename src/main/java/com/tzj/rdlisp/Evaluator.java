@@ -95,6 +95,29 @@ public class Evaluator {
 
               if (Util.car(cons.cdr) instanceof Symbol name) {
                 var args = Util.car(Util.cdr(cons.cdr));
+
+                // type-check varargs, if present
+                int varargCount = 0;
+                var argsPtr = args;
+
+                while (!argsPtr.isNil()) {
+                  var param = Util.car(argsPtr);
+                  if (!param.isCons()) {
+                    if (varargCount != 0) {
+                      throw new Error("cannot define &rest after required positional params");
+                    }
+                  } else if (param.isCons() && Util.car(param) == Util.vararg) {
+                    varargCount++;
+                  }
+                  argsPtr = Util.cdr(argsPtr);
+                }
+
+                if (varargCount > 1) {
+                  throw new Error(
+                      String.format(
+                          "can have at most one &rest param declaration, but got %d", varargCount));
+                }
+
                 var body = Util.car(Util.cdr(Util.cdr(cons.cdr)));
 
                 var fn = new Function(env, name, args, body);
