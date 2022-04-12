@@ -58,7 +58,7 @@ public class Util {
   public static LispObject copyList(LispObject obj) {
     LispObject copy = Util.nil;
 
-    while (obj != Util.nil) {
+    while (!(obj.equals(Util.nil))) {
       if (obj instanceof Cons cons) {
         copy = makeCons(cons.car, copy);
         obj = cons.cdr;
@@ -84,6 +84,9 @@ public class Util {
   }
 
   public static final Symbol quote = new Symbol("quote");
+  public static final Symbol quasiQuote = new Symbol("quasiquote");
+  public static final Symbol unquote = new Symbol("unquote");
+  public static final Symbol unquoteSplice = new Symbol("unquote-splice");
   public static final Symbol vararg = new Symbol("vararg");
   public static final LispObject nil = new Nil();
   public static final LispObject eof = new Eof();

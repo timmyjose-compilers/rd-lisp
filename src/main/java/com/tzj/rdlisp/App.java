@@ -23,6 +23,7 @@ public class App {
           console.setPrompt(App.PROMPT);
           reader = new Reader(new Lexer(console.readLine().trim()));
           for (var expr : reader.read()) {
+            System.out.println("expr = " + expr);
             out.println(Evaluator.eval(Environment.getInitEnv(), expr));
           }
         } catch (Error err) {

@@ -15,7 +15,8 @@
 (defun foldr (fn init lst)
   (if lst
     (fn (car lst)
-        (foldr fn init (cdr lst)))))
+        (foldr fn init (cdr lst)))
+    init))
 
 (defun reverse (lst)
   (foldl (lambda (lst elem) (cons elem lst)) nil lst))
@@ -37,7 +38,19 @@
 (defun list (&rest items)
   items)
 
+(defun list* (&rest forms)
+  (foldr 
+    (lambda (e acc)
+      (if (pair? e)
+        (if (null? acc)
+          (append e acc)
+          (cons e acc))
+        (cons e acc)))
+    nil
+    forms))
+
 (defun append (lst1 lst2)
-  (if (null? lst1)
-    lst2
-    (cons (car lst1) (append (cdr lst1) lst2))))
+  (foldr cons lst2 lst1))
+
+(defun caar (x) (car (car x)))
+(defun cadr (x) (car (cdr x)))

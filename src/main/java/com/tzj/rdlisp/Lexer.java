@@ -210,7 +210,8 @@ public class Lexer {
             || currChar() == '-'
             || currChar() == '>'
             || currChar() == '$'
-            || currChar() == '?') {
+            || currChar() == '?'
+            || currChar() == '*') {
 
           eatIt();
         }

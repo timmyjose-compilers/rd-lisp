@@ -27,6 +27,18 @@ public class Evaluator {
               yield Util.car(cons.cdr);
             }
 
+            case "QUASIQUOTE" -> {
+              throw new UnsupportedOperationException("quasiquote");
+            }
+
+            case "UNQUOTE" -> {
+              throw new UnsupportedOperationException("unquote");
+            }
+
+            case "UNQUOTE-SPLICE" -> {
+              throw new UnsupportedOperationException("unquote-splice");
+            }
+
             case "DEF" -> {
               if (cons.cdr.isNil()
                   || Util.cdr(cons.cdr).isNil()
@@ -184,6 +196,7 @@ public class Evaluator {
 
                 if (fn instanceof MacroFunction macroFn) {
                   var expansion = macroFn.apply(args);
+                  System.out.println("here, expansion = " + expansion);
                   yield Evaluator.eval(env, expansion);
                 } else {
                   var argPtr = args;

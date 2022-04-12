@@ -28,6 +28,8 @@ public class Environment {
     initEnv.addSymbol("apply");
     initEnv.addSymbol("pair?");
     initEnv.addSymbol("null?");
+    initEnv.addSymbol("number?");
+    initEnv.addSymbol("symbol?");
 
     initEnv.bindSymbol(initEnv.retrieveSymbol("nil"), new Nil());
     initEnv.bindSymbol(initEnv.retrieveSymbol("t"), new True());
@@ -43,6 +45,8 @@ public class Environment {
     initEnv.bindSymbol(initEnv.retrieveSymbol("apply"), new ApplyFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("pair?"), new PairCheckFunction());
     initEnv.bindSymbol(initEnv.retrieveSymbol("null?"), new NullCheckFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("number?"), new NumberCheckFunction());
+    initEnv.bindSymbol(initEnv.retrieveSymbol("symbol?"), new SymbolCheckFunction());
   }
 
   public void addSymbol(String symStr) {

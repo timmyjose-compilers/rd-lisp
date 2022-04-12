@@ -60,6 +60,12 @@ public class Reader {
         yield Util.makeCons(Util.vararg, form);
       }
 
+      case QuasiQuote, Unquote, UnquoteSplice -> {
+        advance();
+        var form = readForm();
+        yield Util.makeCons(Util.quasiQuote, Util.makeCons(form, Util.nil));
+      }
+
       case Quote -> {
         advance();
         var form = readForm();

@@ -36,13 +36,15 @@ final class LambdaExpression extends ApplicableExpression {
 
   @Override
   public LispObject apply(LispObject args) {
+    System.out.println(
+        String.format("lambda info - params = %s, args = %s, body = %s", params, args, body));
     // spawn a new environment ("frame") for this closure's execution.
     var env = this.env.clone();
     var paramCount = 0;
 
     var paramPtr = params;
     boolean varargs = false;
-    while (paramPtr != Util.nil) {
+    while (!paramPtr.equals(Util.nil)) {
       var param = Util.car(paramPtr);
       if (param.isCons()) {
         varargs = true;
@@ -54,7 +56,7 @@ final class LambdaExpression extends ApplicableExpression {
 
     var argCount = 0;
     var argPtr = args;
-    while (argPtr != Util.nil) {
+    while (!argPtr.equals(Util.nil)) {
       argCount++;
       argPtr = Util.cdr(argPtr);
     }
@@ -70,7 +72,7 @@ final class LambdaExpression extends ApplicableExpression {
     var runParams = Util.copyList(params);
     var runArgs = Util.copyList(args);
 
-    while (runParams != Util.nil) {
+    while (!runParams.equals(Util.nil)) {
       // handle varargs - only &rest for now
       if (Util.car(runParams).isCons()) {
         runParams = Util.car(runParams);
@@ -111,7 +113,9 @@ abstract sealed class BuiltinFunction extends ApplicableExpression
         LessThanFunction,
         ApplyFunction,
         PairCheckFunction,
-        NullCheckFunction {}
+        NullCheckFunction,
+        NumberCheckFunction,
+        SymbolCheckFunction {}
 
 final class ConsFunction extends BuiltinFunction {
   @Override
@@ -226,7 +230,7 @@ final class AddFunction extends BuiltinFunction {
   public LispObject apply(LispObject args) {
     var res = 0;
 
-    while (args != Util.nil) {
+    while (!args.equals(Util.nil)) {
       if (Util.car(args) instanceof Integer n) {
         res += n.integer;
       } else {
@@ -256,7 +260,7 @@ final class SubFunction extends BuiltinFunction {
       throw new Error(String.format("\"%s\" passed to `-` is not a number", Util.car(args)));
     }
 
-    while (args != Util.nil) {
+    while (!args.equals(Util.nil)) {
       if (Util.car(args) instanceof Integer n) {
         res -= n.integer;
       } else {
@@ -279,7 +283,7 @@ final class MulFunction extends BuiltinFunction {
   public LispObject apply(LispObject args) {
     var res = 1;
 
-    while (args != Util.nil) {
+    while (!args.equals(Util.nil)) {
       if (Util.car(args) instanceof Integer n) {
         res *= n.integer;
       } else {
@@ -308,7 +312,7 @@ final class DivFunction extends BuiltinFunction {
       throw new Error(String.format("\"%s\" passed to `/` is not a number", Util.car(args)));
     }
 
-    while (args != Util.nil) {
+    while (!args.equals(Util.nil)) {
       if (Util.car(args) instanceof Integer n) {
         res /= n.integer;
       } else {
@@ -403,6 +407,20 @@ final class NullCheckFunction extends BuiltinFunction {
   @Override
   public LispObject apply(LispObject args) {
     return Util.car(args).isNil() ? Util.t : Util.nil;
+  }
+}
+
+final class NumberCheckFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    return Util.car(args) instanceof Integer ? Util.t : Util.nil;
+  }
+}
+
+final class SymbolCheckFunction extends BuiltinFunction {
+  @Override
+  public LispObject apply(LispObject args) {
+    return Util.car(args) instanceof Symbol ? Util.t : Util.nil;
   }
 }
 
