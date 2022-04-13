@@ -231,10 +231,6 @@ public class Evaluator {
   }
 
   private static LispObject quasiQuote(Environment env, LispObject obj) {
-    if (obj.isNil()) {
-      return obj;
-    }
-
     if (obj instanceof Cons cons) {
       if (Util.car(cons).equals(Util.unquote)) {
        return  Util.makeCons(Evaluator.eval(env, Util.car(Util.cdr(cons))), Util.nil);
