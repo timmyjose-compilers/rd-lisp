@@ -5,7 +5,7 @@ A simple minimal Lisp interpreter, mainly for the purposes of learning how Lisps
 ## Build and Run
 
 ```
-  $ mvn -q clean && mvn -q compile && mvn -q exec:java -Dexec.mainClass=com.tzj.rdlisp.App
+  $ mvn -q clean && mvn -q compile && mvn -q exec:java
 ```
 
 ## Demo

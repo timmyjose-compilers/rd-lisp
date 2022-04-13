@@ -233,17 +233,19 @@ public class Evaluator {
   private static LispObject quasiQuote(Environment env, LispObject obj) {
     if (obj instanceof Cons cons) {
       if (Util.car(cons).equals(Util.unquote)) {
-       return  Util.makeCons(Evaluator.eval(env, Util.car(Util.cdr(cons))), Util.nil);
+        return Util.makeCons(Evaluator.eval(env, Util.car(Util.cdr(cons))), Util.nil);
       } else if (Util.car(cons).equals(Util.unquoteSplice)) {
-        return  Util.append(Evaluator.eval(env, Util.car(Util.cdr(cons))), quasiQuote(env, Util.cdr(Util.cdr(cons))));
+        return Util.append(
+            Evaluator.eval(env, Util.car(Util.cdr(cons))),
+            quasiQuote(env, Util.cdr(Util.cdr(cons))));
       } else {
         var head = quasiQuote(env, Util.car(cons));
         var tail = quasiQuote(env, Util.cdr(cons));
 
         if (head.isCons()) {
-          return  Util.append(head, tail);
+          return Util.append(head, tail);
         } else {
-          return  Util.makeCons(head, tail);
+          return Util.makeCons(head, tail);
         }
       }
     } else {
