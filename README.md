@@ -157,8 +157,8 @@ With macros:
 With variadic functions:
 
 ```
-$ mvn -q clean && mvn -q -T8 compile && mvn -q exec:java
-Loaded up the standard library
+  $ mvn -q clean && mvn -q -T8 compile && mvn -q exec:java
+  Loaded up the standard library
 
   > (defun add (x y &rest nums) (foldl + 0 (cons x (cons y nums))))
   <function>:<ADD><74767163>
@@ -191,6 +191,50 @@ Loaded up the standard library
 With quasiquoted macros:
 
 ```
+  $ mvn -q clean && mvn -q -T8 compile && mvn -q exec:java
+  Loaded up the standard library
+
+  > `(+ 1 ,(+ 2 3))
+  (+ 1 5)
+
+  > (def l '(3 4 5))
+  L
+
+  > l
+  (3 4 5)
+
+  > `(1 2 ,@l)
+  (1 2 3 4 5)
+
+  > (defmacro ignore (x) `(quote ,x))
+  <macro>:<IGNORE><188316699>
+
+  > (ignore 100)
+  100
+
+  > (ignore foo)
+  FOO
+
+  > foo
+  FOO is not bound
+
+  > (defmacro when (condition body) `(if ,condition ,body))
+  <macro>:<WHEN><1626537335>
+
+  > (when (eq? 1 0) 'yes)
+  NIL
+
+  > (when (eq? 1 1) 'yes)
+  YES
+
+  > (def x '(a b c))
+  X
+
+  > `(x ,x ,@x)
+  (X (A B C) A B C)
+
+  > `(x ,x ,@x foo ,(cadr x) bar ,(cdr x) baz ,@(cdr x))
+  (X (A B C) A B C FOO B BAR (B C) BAZ B C)
 ```
 
 ## LICENCE
