@@ -45,14 +45,14 @@ public class Util {
     if (obj instanceof Cons cons) {
       return cons.car;
     }
-    throw new Error(String.format("%s is not a pair", obj));
+    throw new RuntimeException(String.format("%s is not a pair", obj));
   }
 
   public static LispObject cdr(LispObject obj) {
     if (obj instanceof Cons cons) {
       return cons.cdr;
     }
-    throw new Error(String.format("%s is not a pair", obj));
+    throw new RuntimeException(String.format("%s is not a pair", obj));
   }
 
   public static LispObject copyList(LispObject obj) {
@@ -81,6 +81,23 @@ public class Util {
     }
 
     return len;
+  }
+
+  private static LispObject appendTwo(LispObject lst1, LispObject lst2) {
+    if (lst1.isNil()) {
+      return lst2;
+    }
+
+    return Util.makeCons(Util.car(lst1), appendTwo(Util.cdr(lst1), lst2));
+  }
+
+  public static LispObject append(LispObject... lsts) {
+    var res = Util.nil;
+    for (var lst : lsts) {
+      res = appendTwo(res, lst);
+    }
+
+    return res;
   }
 
   public static final Symbol quote = new Symbol("quote");

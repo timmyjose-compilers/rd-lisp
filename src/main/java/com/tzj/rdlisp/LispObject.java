@@ -36,8 +36,6 @@ final class LambdaExpression extends ApplicableExpression {
 
   @Override
   public LispObject apply(LispObject args) {
-    System.out.println(
-        String.format("lambda info - params = %s, args = %s, body = %s", params, args, body));
     // spawn a new environment ("frame") for this closure's execution.
     var env = this.env.clone();
     var paramCount = 0;
@@ -152,7 +150,7 @@ final class CarFunction extends BuiltinFunction {
     } else if (args instanceof Cons cons) {
       return cons.car;
     } else {
-      throw new Error(String.format("Cannot take the car of %s - not a Cons cell", args));
+      throw new Error(String.format("Cannot take the car of %s - not a cons cell", args));
     }
   }
 
@@ -555,7 +553,6 @@ final class Cons extends LispObject {
         sb.append(cons.car.toString());
         obj = cons.cdr;
       } else {
-        System.out.println("obj = " + obj);
         sb.append(" . ");
         sb.append(obj.toString());
         break;

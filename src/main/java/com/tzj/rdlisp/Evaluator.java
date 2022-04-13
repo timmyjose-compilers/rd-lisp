@@ -20,23 +20,26 @@ public class Evaluator {
         if (cons.car instanceof Symbol op) {
           yield switch (op.sym) {
             case "QUOTE" -> {
-              if (cons.cdr.isNil() || !Util.cdr(cons.cdr).isNil()) {
-                throw new Error("invalid number of args to quote");
+              var argsLen = Util.consLength(cons.cdr);
+              if (argsLen != 1) {
+                throw new Error(
+                    String.format(
+                        "invalid number of args to quote = expected 1, but got %d", argsLen));
               }
 
               yield Util.car(cons.cdr);
             }
 
             case "QUASIQUOTE" -> {
-              throw new UnsupportedOperationException("quasiquote");
+              yield quasiQuote(env, Util.car(cons.cdr));
             }
 
             case "UNQUOTE" -> {
-              throw new UnsupportedOperationException("unquote");
+              throw new Error("unquote can only be used inside quasiquotes");
             }
 
             case "UNQUOTE-SPLICE" -> {
-              throw new UnsupportedOperationException("unquote-splice");
+              throw new Error("unquote-splice can only be used inside quasiquotes");
             }
 
             case "DEF" -> {
@@ -196,7 +199,6 @@ public class Evaluator {
 
                 if (fn instanceof MacroFunction macroFn) {
                   var expansion = macroFn.apply(args);
-                  System.out.println("here, expansion = " + expansion);
                   yield Evaluator.eval(env, expansion);
                 } else {
                   var argPtr = args;
@@ -226,5 +228,30 @@ public class Evaluator {
 
       default -> throw new Error(String.format("eval for %s is not supported", obj));
     };
+  }
+
+  private static LispObject quasiQuote(Environment env, LispObject obj) {
+    if (obj.isNil()) {
+      return obj;
+    }
+
+    if (obj instanceof Cons cons) {
+      if (Util.car(cons).equals(Util.unquote)) {
+       return  Util.makeCons(Evaluator.eval(env, Util.car(Util.cdr(cons))), Util.nil);
+      } else if (Util.car(cons).equals(Util.unquoteSplice)) {
+        return  Util.append(Evaluator.eval(env, Util.car(Util.cdr(cons))), quasiQuote(env, Util.cdr(Util.cdr(cons))));
+      } else {
+        var head = quasiQuote(env, Util.car(cons));
+        var tail = quasiQuote(env, Util.cdr(cons));
+
+        if (head.isCons()) {
+          return  Util.append(head, tail);
+        } else {
+          return  Util.makeCons(head, tail);
+        }
+      }
+    } else {
+      return obj;
+    }
   }
 }

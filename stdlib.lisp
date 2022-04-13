@@ -49,8 +49,18 @@
     nil
     forms))
 
-(defun append (lst1 lst2)
-  (foldr cons lst2 lst1))
-
 (defun caar (x) (car (car x)))
 (defun cadr (x) (car (cdr x)))
+(defun cddr (x) (cdr (cdr x)))
+
+(defun append-two (lst1 lst2)
+  (if (null? lst1)
+    lst2
+    (cons (car lst1) (append-two (cdr lst1) lst2))))
+
+(defun append (&rest lsts)
+  (foldr 
+    (lambda (lst acc)
+      (append-two lst acc))
+    nil
+    lsts))
