@@ -45,14 +45,14 @@ public class Util {
     if (obj instanceof Cons cons) {
       return cons.car;
     }
-    throw new RuntimeException(String.format("%s is not a pair", obj));
+    throw new Error(String.format("%s is not a pair", obj));
   }
 
   public static LispObject cdr(LispObject obj) {
     if (obj instanceof Cons cons) {
       return cons.cdr;
     }
-    throw new RuntimeException(String.format("%s is not a pair", obj));
+    throw new Error(String.format("%s is not a pair", obj));
   }
 
   public static LispObject copyList(LispObject obj) {
